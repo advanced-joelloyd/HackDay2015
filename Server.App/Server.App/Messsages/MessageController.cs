@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using System.Web.Http;
 
 namespace Server.App.Messsages
@@ -7,13 +6,13 @@ namespace Server.App.Messsages
     [RoutePrefix("messages")]
     public class MessageController : ApiController
     {
-        private const string TheMessage = "Hi Mum";
+        private static string _theMessage = "Hi Mum";
 
         [HttpGet]
         [Route("")]
         public string Get()
         {
-            return TheMessage;
+            return _theMessage;
         }
 
         [HttpGet]
@@ -22,8 +21,16 @@ namespace Server.App.Messsages
         {
             for (var i = 1; i <= count; i++)
             {
-                yield return TheMessage;
+                yield return _theMessage;
             }
+        }
+
+        [HttpPost]
+        [Route("{message}")]
+        public IHttpActionResult PostWithDataFromUrl(string message)
+        {
+            _theMessage = message;
+            return Ok(_theMessage);
         }
     }
 }
