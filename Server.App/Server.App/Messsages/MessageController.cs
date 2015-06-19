@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
+using System.Net;
 using System.Web.Http;
+using Newtonsoft.Json.Linq;
 
 namespace Server.App.Messsages
 {
@@ -30,6 +32,18 @@ namespace Server.App.Messsages
         public IHttpActionResult PostWithDataFromUrl(string message)
         {
             _theMessage = message;
+            return Ok(_theMessage);
+        }
+
+        [HttpPost]
+        [Route("")]
+        public IHttpActionResult PostWithDataFromBody([FromBody]JObject data)
+        {
+            JToken message;
+            if (data.TryGetValue("message", out message))
+            {
+                _theMessage = message.Value<string>();
+            }
             return Ok(_theMessage);
         }
     }
