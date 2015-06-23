@@ -18,7 +18,13 @@ namespace Server.App.Game
 
         public void Persist()
         {
-            PersistInternal();
+            try
+            {
+                PersistInternal();
+            }
+            catch (Exception)
+            {
+            }
         }
 
         private void PersistInternal()
@@ -29,6 +35,7 @@ namespace Server.App.Game
 
                 var game = new Entities.Game
                 {
+                    ID = Guid.NewGuid(),
                     OpponentName = this.Opponent.Name,
                     MaxRounds = this.MaxRounds,
                     PointsToWin = this.PointsToWin,
@@ -37,22 +44,21 @@ namespace Server.App.Game
                     GameNumber = lastGame != null  ? lastGame.GameNumber + 1 : 0
                 };
 
-                //foreach (var round in this.PreviousRounds)
-                //{
-                //    var r = 0;
-
-                //    var roundEntity = new Entities.Round
-                //    {
-                //        Timestamp = DateTime.Now,
-                //        OurMove = round.OurMove,
-                //        TheirMove = round.TheirMove,
-                //        RoundNumber = r++
-                //    };
-                //    game.Rounds.Add(roundEntity);
-                //}
+                var r = 0;
+                foreach (var round in this.PreviousRounds)
+                {
+                    var roundEntity = new Entities.Round
+                    {
+                        ID = Guid.NewGuid(),
+                        Timestamp = DateTime.Now,
+                        OurMove = round.OurMove,
+                        TheirMove = round.TheirMove,
+                        RoundNumber = r++
+                    };
+                    game.Rounds.Add(roundEntity);
+                }
 
                 context.Games.Add(game);
-
                 context.SaveChanges();
             }
         }
@@ -93,6 +99,11 @@ namespace Server.App.Game
 
         private string OurMove()
         {
+            if (CurrentRound == null)
+            {
+                CurrentRound = new Round();
+            }
+
             var ourMove = Move.Paper;
             var previousRound = PreviousRounds.Last();
 
@@ -122,13 +133,21 @@ namespace Server.App.Game
             }
             else
             {
-                ourMove = previousRound.OurMove;
+                if (previousRound.OurMove == Move.Dynamite)
+                {
+                    ourMove = Move.Rock;
+                }
+                else
+                {
+                    ourMove = previousRound.OurMove;
+                }
             }
             if (ShouldWeThrowDyamite())
             {
                 ourMove = ThrowDyamite();
             }
 
+            CurrentRound.OurMove = ourMove;
             return ourMove;
         }
 

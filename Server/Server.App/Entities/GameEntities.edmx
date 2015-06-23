@@ -5,8 +5,6 @@
     <!-- SSDL content -->
     <edmx:StorageModels>
     <Schema Namespace="HackDayModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
-        <!--Errors Found During Generation:
-warning 6002: The table/view 'HackDay.dbo.Games' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
         <EntityType Name="Games">
           <Key>
             <PropertyRef Name="ID" />
@@ -19,12 +17,9 @@ warning 6002: The table/view 'HackDay.dbo.Games' does not have a primary key def
           <Property Name="Timestamp" Type="datetime2" Precision="7" />
           <Property Name="GameNumber" Type="int" />
         </EntityType>
-        <!--Errors Found During Generation:
-warning 6002: The table/view 'HackDay.dbo.Rounds' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
         <EntityType Name="Rounds">
           <Key>
             <PropertyRef Name="ID" />
-            
           </Key>
           <Property Name="ID" Type="uniqueidentifier" Nullable="false" />
           <Property Name="OurMove" Type="varchar(max)" />
@@ -33,28 +28,25 @@ warning 6002: The table/view 'HackDay.dbo.Rounds' does not have a primary key de
           <Property Name="Timestamp" Type="datetime2" Precision="7" />
           <Property Name="RoundNumber" Type="int" />
         </EntityType>
+        <Association Name="FK_Rounds_Games">
+          <End Role="Games" Type="Self.Games" Multiplicity="1" />
+          <End Role="Rounds" Type="Self.Rounds" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Games">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="Rounds">
+              <PropertyRef Name="GameID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <EntityContainer Name="HackDayModelStoreContainer">
-          <EntitySet Name="Games" EntityType="Self.Games" store:Type="Tables" store:Schema="dbo">
-            <DefiningQuery>SELECT 
-    [Games].[ID] AS [ID], 
-    [Games].[OpponentName] AS [OpponentName], 
-    [Games].[PointsToWin] AS [PointsToWin], 
-    [Games].[MaxRounds] AS [MaxRounds], 
-    [Games].[DynamiteCount] AS [DynamiteCount], 
-    [Games].[Timestamp] AS [Timestamp], 
-    [Games].[GameNumber] AS [GameNumber]
-    FROM [dbo].[Games] AS [Games]</DefiningQuery>
-          </EntitySet>
-          <EntitySet Name="Rounds" EntityType="Self.Rounds" store:Type="Tables" store:Schema="dbo">
-            <DefiningQuery>SELECT 
-    [Rounds].[ID] AS [ID], 
-    [Rounds].[OurMove] AS [OurMove], 
-    [Rounds].[TheirMove] AS [TheirMove], 
-    [Rounds].[GameID] AS [GameID], 
-    [Rounds].[Timestamp] AS [Timestamp], 
-    [Rounds].[RoundNumber] AS [RoundNumber]
-    FROM [dbo].[Rounds] AS [Rounds]</DefiningQuery>
-          </EntitySet>
+          <EntitySet Name="Games" EntityType="Self.Games" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Rounds" EntityType="Self.Rounds" Schema="dbo" store:Type="Tables" />
+          <AssociationSet Name="FK_Rounds_Games" Association="Self.FK_Rounds_Games">
+            <End Role="Games" EntitySet="Games" />
+            <End Role="Rounds" EntitySet="Rounds" />
+          </AssociationSet>
         </EntityContainer>
       </Schema></edmx:StorageModels>
     <!-- CSDL content -->

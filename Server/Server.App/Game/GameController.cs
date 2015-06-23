@@ -18,16 +18,9 @@ namespace Server.App.Game
         [HttpPost]
         public IHttpActionResult Post([FromBody]FormDataCollection data, int start = 1)
         {
-            try
+            if (_game != null)
             {
-                if (_game != null)
-                {
-                    _game.Persist();
-                }
-            }
-            catch (Exception)
-            {
-                // dont care
+                _game.Persist();
             }
 
             _game = new Game();
