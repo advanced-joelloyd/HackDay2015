@@ -121,12 +121,10 @@
     <Compile Include="Game\Game.cs" />
     <Compile Include="Game\GameController.cs" />
     <Compile Include="Game\Move.cs" />
-    <Compile Include="Game\Opponent.cs" />
     <Compile Include="Game\Round.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Messsages\MessageController.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -148,7 +146,7 @@
       <DependentUpon>GameEntities.edmx</DependentUpon>
       <LastGenOutput>GameEntities.cs</LastGenOutput>
     </Content>
-    <None Include="Properties\PublishProfiles\WHatever.pubxml" />
+    <None Include="Properties\PublishProfiles\Production.pubxml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

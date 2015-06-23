@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
 using Server.App.Entities;
 
 namespace Server.App.Game
@@ -12,7 +11,6 @@ namespace Server.App.Game
 
         public Game()
         {
-            Opponent = new Opponent();
             PreviousRounds = new List<Round>();
         }
 
@@ -24,6 +22,7 @@ namespace Server.App.Game
             }
             catch (Exception)
             {
+                //NO ONE CARES
             }
         }
 
@@ -36,7 +35,7 @@ namespace Server.App.Game
                 var game = new Entities.Game
                 {
                     ID = Guid.NewGuid(),
-                    OpponentName = this.Opponent.Name,
+                    OpponentName = this.OpponentName,
                     MaxRounds = this.MaxRounds,
                     PointsToWin = this.PointsToWin,
                     DynamiteCount = this.DynamiteCount,
@@ -63,12 +62,11 @@ namespace Server.App.Game
             }
         }
 
-        public Guid GameID { get; set; }
-        public Opponent Opponent { get; set; }
+        public Guid GameId { get; set; }
+        public string OpponentName { get; set; }
         public int PointsToWin { get; set; }
         public int CurrentWins { get; set; }
         public int MaxRounds { get; set; }
-
         public int DynamiteCount
         {
             get { return _dynamiteCount; }
@@ -105,11 +103,15 @@ namespace Server.App.Game
                 CurrentRound = new Round();
             }
 
-            string ourMove = Move.Paper;
+            string ourMove;
 
-            if (Opponent.Name == "FATBOTSLIM")
+            if (OpponentName == "FATBOTSLIM")
             {
-                ourMove = GetFATBOTCounter();
+                ourMove = GetFatBotCounter();
+            }
+            else if (OpponentName == "themainteam")
+            {
+                ourMove = GetTheMainTeamCounter();
             }
             else
             {
@@ -119,7 +121,7 @@ namespace Server.App.Game
                 }
                 else
                 {
-                    ourMove = GetDefaultMove(PreviousRounds.Last());
+                    ourMove = GetDefaultMove();
                 }
             }
 
@@ -127,7 +129,7 @@ namespace Server.App.Game
             return ourMove;
         }
 
-        private string GetRandomMove()
+        private static string GetRandomMove()
         {
             var random = new Random().Next(1, 3);
             switch (random)
@@ -147,11 +149,25 @@ namespace Server.App.Game
             }
         }
 
-        private string GetFATBOTCounter()
+        private string GetTheMainTeamCounter()
+        {
+            var ourMove = GetDefaultMove();
+            var previousRound = PreviousRounds.Last();
+
+            if (previousRound.Result == 0 && previousRound.OurMove != Move.Waterbomb && CurrentWaterbombUses < DynamiteCount)
+            {
+                ourMove = Move.Waterbomb;
+                CurrentWaterbombUses++;
+            }
+
+            return ourMove;
+        }
+
+        private string GetFatBotCounter()
         {
             var previousRound = PreviousRounds.Last();
 
-            var ourMove = GetDefaultMove(PreviousRounds.Last());
+            var ourMove = GetDefaultMove();
 
             if (previousRound.Result == 0 && this.CurrentWaterbombUses < this.DynamiteCount)
             {
@@ -166,9 +182,10 @@ namespace Server.App.Game
             return ourMove;
         }
 
-        private string GetDefaultMove(Round previousRound)
+        private string GetDefaultMove()
         {
-            var ourMove = Move.Paper;
+            string ourMove;
+            var previousRound = PreviousRounds.Last();
 
             if (previousRound.Result == 0 || previousRound.Result == -1)
             {
@@ -199,22 +216,16 @@ namespace Server.App.Game
             {
                 case Move.Rock:
                     return Move.Paper;
-                    break;
                 case Move.Paper:
                     return Move.Scissos;
-                    break;
                 case Move.Scissos:
                     return Move.Rock;
-                    break;
                 case Move.Dynamite:
                     return Move.Rock;
-                    break;
                 case Move.Waterbomb:
                     return Move.Rock;
-                    break;
                 default:
                     return Move.Rock;
-                    break;
             }
         }
 
@@ -226,12 +237,8 @@ namespace Server.App.Game
                 return false;
             }
 
-            if (PreviousRounds.Count % 5 == 0)
-            {
-                return true;
-            }
-
-            return false;
+            var random = new Random().Next(3, 9);
+            return PreviousRounds.Count % random == 0;
         }
 
         private string ThrowDyamite()
