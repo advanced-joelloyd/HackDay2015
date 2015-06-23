@@ -80,6 +80,7 @@ namespace Server.App.Game
         }
 
         public int CurrentDynamiteCount { get; set; }
+        public int CurrentWaterbombUses { get; set; }
 
         public List<Round> PreviousRounds { get; set; }
         public Round CurrentRound { get; set; }
@@ -104,32 +105,74 @@ namespace Server.App.Game
                 CurrentRound = new Round();
             }
 
-            var ourMove = Move.Paper;
+            string ourMove = Move.Paper;
+
+            if (Opponent.Name == "FATBOTSLIM")
+            {
+                ourMove = GetFATBOTCounter();
+            }
+            else
+            {
+                if (CurrentWins  < PreviousRounds.Count() + 10 && PreviousRounds.Count() % 10 == 0)
+                {
+                    ourMove = GetRandomMove();
+                }
+                else
+                {
+                    ourMove = GetDefaultMove(PreviousRounds.Last());
+                }
+            }
+
+            CurrentRound.OurMove = ourMove;
+            return ourMove;
+        }
+
+        private string GetRandomMove()
+        {
+            var random = new Random().Next(1, 3);
+            switch (random)
+            {
+                case 1:
+                    return Move.Paper;
+                    break;
+                case 2:
+                    return Move.Rock;
+                    break;
+                case 3:
+                    return Move.Scissos;
+                    break;
+                default:
+                    return Move.Paper;
+                    break;
+            }
+        }
+
+        private string GetFATBOTCounter()
+        {
             var previousRound = PreviousRounds.Last();
+
+            var ourMove = GetDefaultMove(PreviousRounds.Last());
+
+            if (previousRound.Result == 0 && this.CurrentWaterbombUses < this.DynamiteCount)
+            {
+                ourMove = Move.Waterbomb;
+                this.CurrentWaterbombUses++;
+            }
+            else if (previousRound.Result == 0)
+            {
+                ourMove = previousRound.OurMove;
+            }
+
+            return ourMove;
+        }
+
+        private string GetDefaultMove(Round previousRound)
+        {
+            var ourMove = Move.Paper;
 
             if (previousRound.Result == 0 || previousRound.Result == -1)
             {
-                switch (previousRound.TheirMove)
-                {
-                    case Move.Rock:
-                        ourMove = Move.Paper;
-                        break;
-                    case Move.Paper:
-                        ourMove = Move.Scissos;
-                        break;
-                    case Move.Scissos:
-                        ourMove = Move.Rock;
-                        break;
-                    case Move.Dynamite:
-                        ourMove = Move.Rock;
-                        break;
-                    case Move.Waterbomb:
-                        ourMove = Move.Rock;
-                        break;
-                    default:
-                        ourMove = Move.Rock;
-                        break;
-                }
+                ourMove = GetCounter(previousRound);
             }
             else
             {
@@ -147,9 +190,34 @@ namespace Server.App.Game
                 ourMove = ThrowDyamite();
             }
 
-            CurrentRound.OurMove = ourMove;
             return ourMove;
         }
+
+        private static string GetCounter(Round previousRound)
+        {
+            switch (previousRound.TheirMove)
+            {
+                case Move.Rock:
+                    return Move.Paper;
+                    break;
+                case Move.Paper:
+                    return Move.Scissos;
+                    break;
+                case Move.Scissos:
+                    return Move.Rock;
+                    break;
+                case Move.Dynamite:
+                    return Move.Rock;
+                    break;
+                case Move.Waterbomb:
+                    return Move.Rock;
+                    break;
+                default:
+                    return Move.Rock;
+                    break;
+            }
+        }
+
 
         private bool ShouldWeThrowDyamite()
         {
