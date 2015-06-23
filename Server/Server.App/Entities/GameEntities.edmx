@@ -1,0 +1,162 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+    <Schema Namespace="HackDayModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <!--Errors Found During Generation:
+warning 6002: The table/view 'HackDay.dbo.Games' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+        <EntityType Name="Games">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="OpponentName" Type="varchar(max)" />
+          <Property Name="PointsToWin" Type="int" />
+          <Property Name="MaxRounds" Type="int" />
+          <Property Name="DynamiteCount" Type="int" />
+          <Property Name="Timestamp" Type="datetime2" Precision="7" />
+          <Property Name="GameNumber" Type="int" />
+        </EntityType>
+        <!--Errors Found During Generation:
+warning 6002: The table/view 'HackDay.dbo.Rounds' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+        <EntityType Name="Rounds">
+          <Key>
+            <PropertyRef Name="ID" />
+            
+          </Key>
+          <Property Name="ID" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="OurMove" Type="varchar(max)" />
+          <Property Name="TheirMove" Type="varchar(max)" />
+          <Property Name="GameID" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="Timestamp" Type="datetime2" Precision="7" />
+          <Property Name="RoundNumber" Type="int" />
+        </EntityType>
+        <EntityContainer Name="HackDayModelStoreContainer">
+          <EntitySet Name="Games" EntityType="Self.Games" store:Type="Tables" store:Schema="dbo">
+            <DefiningQuery>SELECT 
+    [Games].[ID] AS [ID], 
+    [Games].[OpponentName] AS [OpponentName], 
+    [Games].[PointsToWin] AS [PointsToWin], 
+    [Games].[MaxRounds] AS [MaxRounds], 
+    [Games].[DynamiteCount] AS [DynamiteCount], 
+    [Games].[Timestamp] AS [Timestamp], 
+    [Games].[GameNumber] AS [GameNumber]
+    FROM [dbo].[Games] AS [Games]</DefiningQuery>
+          </EntitySet>
+          <EntitySet Name="Rounds" EntityType="Self.Rounds" store:Type="Tables" store:Schema="dbo">
+            <DefiningQuery>SELECT 
+    [Rounds].[ID] AS [ID], 
+    [Rounds].[OurMove] AS [OurMove], 
+    [Rounds].[TheirMove] AS [TheirMove], 
+    [Rounds].[GameID] AS [GameID], 
+    [Rounds].[Timestamp] AS [Timestamp], 
+    [Rounds].[RoundNumber] AS [RoundNumber]
+    FROM [dbo].[Rounds] AS [Rounds]</DefiningQuery>
+          </EntitySet>
+        </EntityContainer>
+      </Schema></edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="HackDayModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="Game">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Guid" Nullable="false" />
+          <Property Name="OpponentName" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="PointsToWin" Type="Int32" />
+          <Property Name="MaxRounds" Type="Int32" />
+          <Property Name="DynamiteCount" Type="Int32" />
+          <NavigationProperty Name="Rounds" Relationship="Self.FK_Rounds_Games" FromRole="Games" ToRole="Rounds" />
+          <Property Name="Timestamp" Type="DateTime" Precision="7" />
+          <Property Name="GameNumber" Type="Int32" />
+        </EntityType>
+        <EntityType Name="Round">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Guid" Nullable="false" />
+          <Property Name="OurMove" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="TheirMove" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="GameID" Type="Guid" Nullable="false" />
+          <NavigationProperty Name="Game" Relationship="Self.FK_Rounds_Games" FromRole="Rounds" ToRole="Games" />
+          <Property Name="Timestamp" Type="DateTime" Precision="7" />
+          <Property Name="RoundNumber" Type="Int32" />
+        </EntityType>
+        <Association Name="FK_Rounds_Games">
+          <End Role="Games" Type="Self.Game" Multiplicity="1" />
+          <End Role="Rounds" Type="Self.Round" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Games">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="Rounds">
+              <PropertyRef Name="GameID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="HackDayEntities1" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="Games" EntityType="Self.Game" />
+          <EntitySet Name="Rounds" EntityType="Self.Round" />
+          <AssociationSet Name="FK_Rounds_Games" Association="Self.FK_Rounds_Games">
+            <End Role="Games" EntitySet="Games" />
+            <End Role="Rounds" EntitySet="Rounds" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="HackDayModelStoreContainer" CdmEntityContainer="HackDayEntities1">
+          <EntitySetMapping Name="Games">
+            <EntityTypeMapping TypeName="HackDayModel.Game">
+              <MappingFragment StoreEntitySet="Games">
+                <ScalarProperty Name="GameNumber" ColumnName="GameNumber" />
+                <ScalarProperty Name="Timestamp" ColumnName="Timestamp" />
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="OpponentName" ColumnName="OpponentName" />
+                <ScalarProperty Name="PointsToWin" ColumnName="PointsToWin" />
+                <ScalarProperty Name="MaxRounds" ColumnName="MaxRounds" />
+                <ScalarProperty Name="DynamiteCount" ColumnName="DynamiteCount" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Rounds">
+            <EntityTypeMapping TypeName="HackDayModel.Round">
+              <MappingFragment StoreEntitySet="Rounds">
+                <ScalarProperty Name="RoundNumber" ColumnName="RoundNumber" />
+                <ScalarProperty Name="Timestamp" ColumnName="Timestamp" />
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="OurMove" ColumnName="OurMove" />
+                <ScalarProperty Name="TheirMove" ColumnName="TheirMove" />
+                <ScalarProperty Name="GameID" ColumnName="GameID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="true" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>
