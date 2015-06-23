@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+	
+</head>
+<body>
+	<h1>Messages</h1>
+	<button id="getTheMessage">Get Value</button>
+	<button id="setTheMessage">Post Value</button>
+	<div id="theMessage"></div>
+
+	<script type="text/javascript" src="jquery-2.1.4.js"></script>
+	<script type="text/javascript">
+		$(function () {
+			$("#getTheMessage").click(function () {
+				$.ajax({
+					url: "http://localhost:54841/messages", 
+					method: "GET",
+					success: function (result) {
+						$("#theMessage").html(result);
+					}
+				});
+			});
+
+			$("#setTheMessage").click(function () {
+				$.ajax({
+					type: "POST",
+					data: '{ message: "Hello World" }',
+					contentType: 'application/json',
+					dataType: 'json',
+					url: "http://localhost:54841/messages", success: function (result) {
+						$("#theMessage").html(result);
+					}
+				});
+			});
+		});
+
+	</script>
+</body>
+</html>

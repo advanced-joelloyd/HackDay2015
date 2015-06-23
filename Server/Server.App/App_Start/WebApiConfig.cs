@@ -10,7 +10,9 @@ namespace Server.App
     {
         public static void Register(HttpConfiguration config)
         {
-            //config.Formatters.Add(new BrowserJsonFormatter());
+            config.EnableCors();
+
+            config.Formatters.Add(new BrowserJsonFormatter());
 
             config.MapHttpAttributeRoutes();
         }

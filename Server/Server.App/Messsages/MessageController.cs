@@ -1,10 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Net;
 using System.Web.Http;
+using System.Web.Http.Cors;
 using Newtonsoft.Json.Linq;
 
 namespace Server.App.Messsages
 {
+    [EnableCors(origins: "http://localhost:54842", headers: "*", methods: "*")]
     [RoutePrefix("messages")]
     public class MessageController : ApiController
     {
